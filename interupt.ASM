@@ -4,29 +4,25 @@
 .code
 org 100h
 
-extrn EndLabel
+extrn End_label
 extrn frame: proc
 
-OUTPUT 		        equ 21h
 OUTPUT_CODE_AX    equ 4C00h
 FRAME_COLOUR 	    equ 05A00h
-SYMBOLS_ONE_LINE  equ 60
 VIDEO_MEMORY	    equ 0b800h
-LINES  		        equ 11
+HEIGHT  		        equ 11
 WIDTH		          equ 60
 LEFT_CORNER_X	    equ 10
 LEFT_CORNER_Y     equ 10
 
-KEY               equ 57 ; 28 - ENTER
+KEY               equ 57 ; <- space; 28 <- ENTER
 
-INT_9		          equ 9*4
+INT_9		          equ 9 * 4
 
 Start:
         call interupt_new
 
   		  call stay_resident
-
-;-----------------------------------------------
 
 New09		proc
 
@@ -38,10 +34,10 @@ New09		proc
 
 		    cmp bl, KEY
         jne skip
-		    call frame_
+		    call draw_frame
 
 skip:
-	      mov al, 20h 	; say that interrupt ended
+	      mov al, 20h 	; says that interrupt ended
 		    out 20h, al
 
 		    pop di dx es bx ax
@@ -54,11 +50,11 @@ Old09   dw 0
 endp
 
 ;=============================================
-;Calls frame and safe registers
-;Input - al - scan code
+; Calls frame and safes registers
+; Input - al - scan code
 ;=============================================
 
-frame_  proc
+draw_frame  proc
 
         mov ax, VIDEO_MEMORY
 		    mov es, ax
@@ -69,7 +65,7 @@ frame_  proc
 		    mov es, ax
 
 		    mov cx, FRAME_COLOUR
-		    mov bl, LINES
+		    mov bl, HEIGHT
 		    mov bh, WIDTH
 		    mov dl, LEFT_CORNER_X
 		    mov dh, LEFT_CORNER_Y
@@ -79,8 +75,8 @@ frame_  proc
 		    pop di dx bx cx es ax
 
         mov al, dl
-		    mov di, ((LEFT_CORNER_X + LINES / 2) * 80 + LEFT_CORNER_Y + WIDTH / 2) * 2
-		    mov ah, 4eh 
+		    mov di, ((LEFT_CORNER_X + HEIGHT / 2) * 80 + LEFT_CORNER_Y + WIDTH / 2) * 2
+		    mov ah, 4eh
 		    stosw
 
 		    ret
@@ -137,7 +133,7 @@ RESIDENT	equ	3100h
 stay_resident	proc
 
         mov ax, RESIDENT
-		    mov dx, offset EndLabel
+		    mov dx, offset End_label
 		    shr dx, 4
 		    inc dx
 		    int 21h

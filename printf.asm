@@ -31,6 +31,8 @@ printing:
         mov rsi, [rbp] ; в rsi адрес аргументной строки
 
 next_symbol:
+        
+        xor rax, rax
 
         mov al, [rsi] ; получаем символ из аргументной строки
         inc rsi ; переходим к следующему сиволу
@@ -49,25 +51,32 @@ next_symbol:
 
         add rbp, 8d ; получаем аргумент для команды %
 
-        cmp al, 'd'
-        je _decimal
+        sub al, 'a'
+        shl rax, 3;  * 8
+        mov rbx, jump_table
+        add rax, rbx; rdi = jmp_t + (al - 'a') * 8
 
-        cmp al, 'b'
-        je _binary
+        jmp [rax]
 
-        cmp al, 'o'
-        je _octal
-
-        cmp al, 'x'
-        je _hexadecimal
-
-        cmp al, 'с'
-        je _char
-
-        cmp al, 's'
-        je _string
-
-        jmp next_symbol
+        ; cmp al, 'd'
+        ; je _decimal
+        ;
+        ; cmp al, 'b'
+        ; je _binary
+        ;
+        ; cmp al, 'o'
+        ; je _octal
+        ;
+        ; cmp al, 'x'
+        ; je _hexadecimal
+        ;
+        ; cmp al, 'с'
+        ; je _char
+        ;
+        ; cmp al, 's'
+        ; je _string
+        ;
+        ; jmp next_symbol
 
 _decimal:
 
@@ -330,3 +339,16 @@ symbol: db '?'
 buff:   db 'A'
 
 table:  db '0123456789ABCDEF'
+
+jump_table:
+        dq next_symbol,
+        dq _binary,
+        dq _char,
+        dq _decimal,
+        times 10 dq next_symbol,
+        dq _octal,
+        times 3 dq next_symbol,
+        dq _string,
+        times 4 dq next_symbol,
+        dq _hexadecimal,
+        times 4 dq next_symbol

@@ -2,7 +2,7 @@
 .code
 org 100h
 
-public EndLabel
+public End_label
 public frame
 
 ;===============================================================================
@@ -49,21 +49,20 @@ first:
 		pop ax
 
 		mov cx, 0FFFFh
-		call wait_
+		call pause
 
 		dec	bl
 		cmp	bl, 0
 		je skip
 
 		jmp	first
-skip: 
+skip:
 		ret
 		endp
 
-wait_:
-wait__:
-		loop wait__
+pause:
+		loop pause
 		ret
 
-EndLabel:
+End_label:
 end
